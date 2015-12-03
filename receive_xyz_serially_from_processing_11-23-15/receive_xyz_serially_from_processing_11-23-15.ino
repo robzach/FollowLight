@@ -37,7 +37,8 @@ void loop() {
 
   // to run motors according to serial input
 
-  if (Serial.available()) {
+  if (Serial.available() > 0) {
+    
     if (Serial.peek() == 'h') {
       x = Serial.parseFloat();
       y = Serial.parseFloat();
