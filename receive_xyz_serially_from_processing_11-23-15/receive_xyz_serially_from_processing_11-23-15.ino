@@ -10,9 +10,11 @@ float tri[3] = {1, 1, 1};
 float t = 0;
 float r = 1;
 
-long amotor = 800 * 16;
-long bmotor = 800 * 16;
-long cmotor = 800 * 16;
+int microMultiplier = 8; // # microsteps/step. 1 if not microstepping.
+
+long amotor = 800 * microMultiplier;
+long bmotor = 800 * microMultiplier;
+long cmotor = 800 * microMultiplier;
 
 long timer;
 
@@ -21,11 +23,11 @@ float x, y, z;
 void setup() {
   Serial.begin(9600);
 
-  one.setMaxSpeed(200 * 16);
+  one.setMaxSpeed(200 * microMultiplier);
   one.setAcceleration(10000);
-  two.setMaxSpeed(200 * 16);
+  two.setMaxSpeed(200 * microMultiplier);
   two.setAcceleration(10000);
-  three.setMaxSpeed(200 * 16);
+  three.setMaxSpeed(200 * microMultiplier);
   three.setAcceleration(10000);
 
   one.setCurrentPosition(amotor);
@@ -38,50 +40,53 @@ void loop() {
   // to run motors according to serial input
 
   if (Serial.available() > 0) {
-    
+
     if (Serial.peek() == 'h') {
+
       x = Serial.parseFloat();
       y = Serial.parseFloat();
       z = Serial.parseFloat();
-      Serial.read();
+
+      //    descartesToTriangle(x, y);
+      threespaceToTriangle(x, y, z);
+      amotor = triangleToSteps(tri[0]);
+      bmotor = triangleToSteps(tri[1]);
+      cmotor = triangleToSteps(tri[2]);
+      
+      one.moveTo(amotor);
+      two.moveTo(bmotor);
+      three.moveTo(cmotor);
+
+      // r = t*d <-- MATH IS WRONG! r = d/t, not d*t, dummy
+      // set time = 0.5 seconds
+      one.setMaxSpeed(one.distanceToGo() / 0.5);
+      two.setMaxSpeed(two.distanceToGo() / 0.5);
+      three.setMaxSpeed(three.distanceToGo() / 0.5);
     }
 
-    //    descartesToTriangle(x, y);
-    threespaceToTriangle(x, y, z);
-    amotor = triangleToSteps(tri[0]);
-    bmotor = triangleToSteps(tri[1]);
-    cmotor = triangleToSteps(tri[2]);
-    /*
-          Serial.print("read x, y, z\t");
-          Serial.print(x);
-          Serial.print('\t');
-          Serial.print(y);
-          Serial.print('\t');
-          Serial.println(z);
-          Serial.print("triangle a, b, c = ");
-          Serial.print(tri[0]);
-          Serial.print('\t');
-          Serial.print(tri[1]);
-          Serial.print('\t');
-          Serial.println(tri[2]);
-          Serial.print("amotor, bmotor, cmotor: \t\t");
-          Serial.print(amotor);
-          Serial.print('\t');
-          Serial.print(bmotor);
-          Serial.print('\t');
-          Serial.println(cmotor);
-    */
-    one.moveTo(amotor);
-    two.moveTo(bmotor);
-    three.moveTo(cmotor);
-
-    // r = t*d <-- MATH IS WRONG! r = d/t, not d*t, dummy
-    // set time = 0.5 seconds
-    one.setMaxSpeed(one.distanceToGo() / 0.5);
-    two.setMaxSpeed(two.distanceToGo() / 0.5);
-    three.setMaxSpeed(three.distanceToGo() / 0.5);
+    Serial.read(); // in case anything not starting with 'h' came through, clear it out
 
   }
+  /*
+        Serial.print("read x, y, z\t");
+        Serial.print(x);
+        Serial.print('\t');
+        Serial.print(y);
+        Serial.print('\t');
+        Serial.println(z);
+        Serial.print("triangle a, b, c = ");
+        Serial.print(tri[0]);
+        Serial.print('\t');
+        Serial.print(tri[1]);
+        Serial.print('\t');
+        Serial.println(tri[2]);
+        Serial.print("amotor, bmotor, cmotor: \t\t");
+        Serial.print(amotor);
+        Serial.print('\t');
+        Serial.print(bmotor);
+        Serial.print('\t');
+        Serial.println(cmotor);
+  */
 
 
   /*
@@ -127,7 +132,7 @@ void threespaceToTriangle(float x, float y, float z) {
 // return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 
 long triangleToSteps(float x) {
-  return x * 800 * 16;
+  return x * 800 * microMultiplier;
   //  return (x - 0) * (800 - 0) / (sqrt(3) - 0) + 0;
 }
 
