@@ -1,11 +1,18 @@
 /*
-Thomas Sanchez Lengeling.
- http://codigogenerativo.com/
- 
-  Kinect for Windows v2 library for processing
- 
- 3D Skeleton.
- Some features a not implemented, such as orientation
+
+Code to track a person's head using a Kinect, then send serial command strings to an
+Arduino that will move three motors to position a light bulb above the
+person's head.
+
+Incorporates lots of code from: 
+//Thomas Sanchez Lengeling.
+// http://codigogenerativo.com/
+//  Kinect for Windows v2 library for processing
+// 3D Skeleton.
+// Some features a not implemented, such as orientation
+
+Robert Zacharias, rzachari@andrew.cmu.edu, 12-13-15
+
  */
 
 import processing.serial.*;
@@ -27,7 +34,7 @@ float sendZmin = 0.3;
 float sendZmax = 1.0;
 
 
-
+// old calibration data
 //float kminX = -0.8;
 //float kmaxX = 0.8;
 //float kminY = -0.3;
@@ -57,7 +64,7 @@ float xpos, ypos, zpos;
 void setup() {
   size(1024, 768, P3D);
 
-  String portName = "COM5"; // may need to be changed
+  String portName = "COM5"; //for the wireless Bluetooth device I'm using
   myPort = new Serial(this, portName, 9600);
 
   PFont mono;
@@ -210,28 +217,6 @@ void drawBone(KJoint[] joints, int jointType1, int jointType2) {
   point(joints[jointType2].getX(), joints[jointType2].getY(), joints[jointType2].getZ());
 }
 
-void drawHandState(KJoint joint) {
-  handState(joint.getState());
-  strokeWeight(5.0f + joint.getZ()*8);
-  point(joint.getX(), joint.getY(), joint.getZ());
-}
-
-void handState(int handState) {
-  switch(handState) {
-  case KinectPV2.HandState_Open:
-    stroke(0, 255, 0);
-    break;
-  case KinectPV2.HandState_Closed:
-    stroke(255, 0, 0);
-    break;
-  case KinectPV2.HandState_Lasso:
-    stroke(0, 0, 255);
-    break;
-  case KinectPV2.HandState_NotTracked:
-    stroke(100, 100, 100);
-    break;
-  }
-}
 
 void keyPressed() {
 
@@ -274,6 +259,7 @@ void sendXYZ(float x, float y, float z) {
   println("transmitted X, Y, Z: " + sendX + "\t" + sendY + "\t" + sendZ);
 }
 
+// does the usual map() math, but with floats in and out
 float floatmap(float x, float in_min, float in_max, float out_min, float out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
