@@ -1,6 +1,8 @@
-Originally using Leapmotion data input to drive three stepper motors in threespace on a small scale. That was a prototype.
+# The light that follows you around the room.
 
-Now working on using a Kinect to drive the same motors over a much larger spatial range, to make it so a suspended light bulb persistently sits over a participant's head.
+A user's position is read by a Kinect, and three motors drive a light bulb to always hover about a foot above their head as they move around a space.
+
+(Originally used Leapmotion data input to drive three stepper motors in threespace on a small scale. That was a mini-prototype.)
 
 Video documentation of the system as installed:
 
